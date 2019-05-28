@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.MainActivity">
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/lesson1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="onLesson1Click"
+        android:text="lesson1"
+        tools:ignore="OnClick" />
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/lesson2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:onClick="onLesson2Click"
+        android:text="lesson2"
+        app:layout_constraintStart_toEndOf="@+id/lesson1"
+        tools:ignore="MissingConstraints,OnClick"
+        tools:layout_editor_absoluteY="0dp" />
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/lesson3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:onClick="onLesson3Click"
+        android:text="lesson3"
+        app:layout_constraintStart_toEndOf="@+id/lesson2"
+        tools:ignore="MissingConstraints,OnClick"
+        tools:layout_editor_absoluteY="0dp" />
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/lesson4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:onClick="onLesson4Click"
+        android:text="lesson4"
+        app:layout_constraintStart_toEndOf="@+id/lesson3"
+        tools:ignore="MissingConstraints,OnClick"
+        tools:layout_editor_absoluteY="0dp" />
+
+</android.support.constraint.ConstraintLayout>
