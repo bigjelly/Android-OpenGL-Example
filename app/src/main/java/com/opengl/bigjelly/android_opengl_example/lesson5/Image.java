@@ -81,8 +81,8 @@ public class Image {
                 GLES30.GL_FLOAT, false, 0, vertexBuffer);
         GLES30.glEnableVertexAttribArray(aPositionLocation);
         //---------传入颜色数据
-        GLES30.glVertexAttribPointer(aColorLocation, COORDS_PER_COLOR,
-                GLES30.GL_FLOAT, false, 0, colorBuffer);
+//        GLES30.glVertexAttribPointer(aColorLocation, COORDS_PER_COLOR,
+//                GLES30.GL_FLOAT, false, 0, colorBuffer);
         GLES30.glEnableVertexAttribArray(aColorLocation);
     }
 

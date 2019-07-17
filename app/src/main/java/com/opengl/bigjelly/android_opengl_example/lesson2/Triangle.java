@@ -25,14 +25,20 @@ public class Triangle {
     private FloatBuffer vertexBuffer;
 
     //---------第四步:定义坐标元素的个数，这里有三个顶点
-    private static final int POSITION_COMPONENT_COUNT = 3;
+    private static final int POSITION_COMPONENT_COUNT = 6;
 
     // 数组中每个顶点的坐标数
     static final int COORDS_PER_VERTEX = 2;
     // 每个顶点的坐标数  						X ,  Y
-    static float triangleCoords[] = {0.0f, 0.5f,   // top
+    static float triangleCoords[] = {
+            -0.5f, 0.0f,   // top left
             -0.5f, -0.5f,   // bottom left
-            0.5f, -0.5f};   // bottom right
+            0.5f, -0.5f,    // bottom right
+
+            -0.5f, 0.0f,   // top left
+            0.5f, 0.0f,    // top right
+            0.5f, -0.5f};  // bottom right
+
 
     private int program;
 
@@ -87,7 +93,7 @@ public class Triangle {
 
     //----------第七步:绘制
     public void draw() {
-        GLES30.glUniform4f(uColorLocation, 0.0f, 0.0f, 1.0f, 1.0f);
+        GLES30.glUniform4f(uColorLocation, 1.0f, 1.0f, 1.0f, 1.0f);
         GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, POSITION_COMPONENT_COUNT);
     }
 
