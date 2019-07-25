@@ -8,6 +8,7 @@ import android.view.View;
 import com.opengl.bigjelly.android_opengl_example.R;
 import com.opengl.bigjelly.android_opengl_example.lesson1.Lesson1Activity;
 import com.opengl.bigjelly.android_opengl_example.lesson4.Lesson4Activity;
+import com.opengl.bigjelly.android_opengl_example.lesson5.Lesson5Activity;
 import com.opengl.bigjelly.android_opengl_example.utils.Constants;
 
 public class MainActivity extends AppCompatActivity {
@@ -37,6 +38,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void onLesson4Click(View view) {
         Intent intent = new Intent(this, Lesson4Activity.class);
+        startActivity(intent);
+    }
+
+    public void onLesson5Click(View view) {
+        Intent intent = new Intent(this, Lesson5Activity.class);
         startActivity(intent);
     }
 }

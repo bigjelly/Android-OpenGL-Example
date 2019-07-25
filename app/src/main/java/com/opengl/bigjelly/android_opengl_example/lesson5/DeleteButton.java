@@ -6,7 +6,7 @@ import android.opengl.GLES30;
 import com.opengl.bigjelly.android_opengl_example.data.VertexArray;
 import com.opengl.bigjelly.android_opengl_example.program.TextureShaderProgram;
 
-public class Image {
+public class DeleteButton {
 
     private static final int BYTES_PER_FLOAT = 4;
     private static final int POSITION_COMPONENT_COUNT = 2;
@@ -17,26 +17,12 @@ public class Image {
     private final VertexArray posVertexArray;
     private final VertexArray coordVertexArray;
 
-    private static final float[] VERTEX_DATA = {
-            //Order of coordinates: X, Y, S, T
-            // 桌子的的 x y 位置，以及 S T 纹理坐标
-            // Triangle Fan
-
-            0f, 0f, 0.5f, 0.5f,
-            -0.5f, -0.8f, 0f, 0.9f,
-            0.5f, -0.8f, 1f, 0.9f,
-            0.5f, 0.8f, 1f, 0.1f,
-            -0.5f, 0.8f, 0f, 0.1f,
-            -0.5f, -0.8f, 0f, 0.9f
-
-    };
-
-    // 顶点坐标
+    // 顶点坐标 -0.5f, 0.5f
     private final float[] sPos = {
-            -0.4f, 0.4f,
-            -0.4f, -0.4f,
-            0.4f, 0.4f,
-            0.4f, -0.4f
+            -0.6f, 0.6f,
+            -0.6f, 0.4f,
+            -0.4f, 0.6f,
+            -0.4f, 0.4f
     };
     // 纹理坐标
     private final float[] sCoord = {
@@ -46,7 +32,7 @@ public class Image {
             1.0f, 1.0f,
     };
 
-    public Image() {
+    public DeleteButton() {
         posVertexArray = new VertexArray(sPos);
         coordVertexArray = new VertexArray(sCoord);
     }
@@ -72,6 +58,6 @@ public class Image {
 
     //根据位置和纹理绘制形状
     public void draw() {
-        GLES30.glDrawArrays(GLES20.GL_TRIANGLE_STRIP,0,4);
+        GLES30.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
     }
 }

@@ -8,43 +8,53 @@
 
     <android.support.v7.widget.AppCompatButton
         android:id="@+id/lesson1"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:onClick="onLesson1Click"
         android:text="lesson1"
-        tools:ignore="OnClick" />
+        tools:ignore="MissingConstraints,OnClick" />
 
     <android.support.v7.widget.AppCompatButton
         android:id="@+id/lesson2"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginTop="2dp"
         android:onClick="onLesson2Click"
         android:text="lesson2"
-        app:layout_constraintStart_toEndOf="@+id/lesson1"
-        tools:ignore="MissingConstraints,OnClick"
-        tools:layout_editor_absoluteY="0dp" />
+        app:layout_constraintTop_toBottomOf="@+id/lesson1"
+        tools:ignore="MissingConstraints,OnClick" />
 
     <android.support.v7.widget.AppCompatButton
         android:id="@+id/lesson3"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginTop="2dp"
         android:onClick="onLesson3Click"
         android:text="lesson3"
-        app:layout_constraintStart_toEndOf="@+id/lesson2"
+        app:layout_constraintTop_toBottomOf="@+id/lesson2"
         tools:ignore="MissingConstraints,OnClick"
-        tools:layout_editor_absoluteY="0dp" />
+        tools:layout_editor_absoluteX="0dp" />
 
     <android.support.v7.widget.AppCompatButton
         android:id="@+id/lesson4"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginTop="2dp"
         android:onClick="onLesson4Click"
         android:text="lesson4"
-        app:layout_constraintStart_toEndOf="@+id/lesson3"
+        app:layout_constraintTop_toBottomOf="@+id/lesson3"
         tools:ignore="MissingConstraints,OnClick"
-        tools:layout_editor_absoluteY="0dp" />
+        tools:layout_editor_absoluteX="0dp" />
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/lesson5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:onClick="onLesson5Click"
+        android:text="lesson5"
+        app:layout_constraintTop_toBottomOf="@+id/lesson4"
+        tools:ignore="MissingConstraints,OnClick"
+        tools:layout_editor_absoluteX="0dp" />
 
 </android.support.constraint.ConstraintLayout>
