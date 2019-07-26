@@ -19,10 +19,14 @@ public class DeleteButton {
 
     // 顶点坐标 -0.5f, 0.5f
     private final float[] sPos = {
-            -0.6f, 0.6f,
-            -0.6f, 0.4f,
-            -0.4f, 0.6f,
-            -0.4f, 0.4f
+//            -0.6f, 0.6f,
+//            -0.6f, 0.4f,
+//            -0.4f, 0.6f,
+//            -0.4f, 0.4f
+            -1.0f, 1.0f,
+            -1.0f, -1.0f,
+            1.0f, 1.0f,
+            1.0f, -1.0f
     };
     // 纹理坐标
     private final float[] sCoord = {

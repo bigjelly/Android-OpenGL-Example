@@ -13,7 +13,7 @@ public class ColorShaderProgram extends ShaderProgram {
 
 
     public ColorShaderProgram(Context context) {
-        super(context, R.raw.simple_vertex_shader, R.raw.simple_fragment_shader);
+        super(context, R.raw.simple_vertex_shader2, R.raw.simple_fragment_shader2);
 
         uMatrixLocation = GLES30.glGetUniformLocation(program, U_MATRIX);
 

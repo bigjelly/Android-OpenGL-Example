@@ -33,10 +33,14 @@ public class Image {
 
     // 顶点坐标
     private final float[] sPos = {
-            -0.4f, 0.4f,
-            -0.4f, -0.4f,
-            0.4f, 0.4f,
-            0.4f, -0.4f
+//            -1.4f, 0.4f,
+//            -0.4f, -0.4f,
+//            0.4f, 0.4f,
+//            0.4f, -0.4f
+            -1.0f, 1.0f,
+            -1.0f, -1.0f,
+            1.0f, 1.0f,
+            1.0f, -1.0f
     };
     // 纹理坐标
     private final float[] sCoord = {

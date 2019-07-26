@@ -35,7 +35,6 @@ public class TextureShaderProgram extends ShaderProgram {
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textureId);
         //将纹理单元传递给u_TextureUnit
         GLES30.glUniform1i(uTextureUnitLocation, 0);
-
     }
 
     public int getPositionAttributeLocation() {
