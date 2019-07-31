@@ -6,15 +6,13 @@ import android.graphics.RectF;
 import android.opengl.GLES30;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
+import android.util.Log;
 import android.view.MotionEvent;
 
 import com.opengl.bigjelly.android_opengl_example.R;
-import com.opengl.bigjelly.android_opengl_example.data.Mallet;
 import com.opengl.bigjelly.android_opengl_example.program.ColorShaderProgram;
 import com.opengl.bigjelly.android_opengl_example.program.TextureShaderProgram;
 import com.opengl.bigjelly.android_opengl_example.utils.BitmapHelper;
-import com.opengl.bigjelly.android_opengl_example.utils.Geometry;
-import com.opengl.bigjelly.android_opengl_example.utils.MatrixHelper;
 import com.opengl.bigjelly.android_opengl_example.utils.TextureHelper;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -53,6 +51,8 @@ public class Lesson5Render implements GLSurfaceView.Renderer {
 
     private int mBitmapHeight;
     private int mBitmapWidth;
+    int toolWidth;
+    int toolHeight;
 
     private int mHeight;
     private int mWidth;
@@ -61,6 +61,13 @@ public class Lesson5Render implements GLSurfaceView.Renderer {
     float posY;
     float offsetWidth;
     float offsetHeight;
+    float scale;
+    float angle;
+    float newDelX;
+    float newDelY;
+
+    float newScaX;
+    float newScaY;
 
     public Lesson5Render(Context context) {
         this.context = context;
@@ -85,6 +92,8 @@ public class Lesson5Render implements GLSurfaceView.Renderer {
         texture = TextureHelper.loadTexture(bitmap);
 
         Bitmap delBitmap = BitmapHelper.loadBitmap(context, R.mipmap.ic_delect);
+        toolWidth = delBitmap.getWidth();
+        toolHeight = delBitmap.getHeight();
         delTexture = TextureHelper.loadTexture(delBitmap);
 
         Bitmap scaleBitmap = BitmapHelper.loadBitmap(context, R.mipmap.ic_scale);
@@ -98,21 +107,6 @@ public class Lesson5Render implements GLSurfaceView.Renderer {
 
         //Second:设置视口尺寸，即告诉opengl可以用来渲染的surface大小
         GLES30.glViewport(0, 0, mWidth, mHeight);
-//        float sWH=mBitmapWidth/(float)mBitmapHeight;
-//        float sWidthHeight=width/(float)height;
-//        if(width>height){
-//            if(sWH>sWidthHeight){
-//                Matrix.orthoM(mProjectMatrix, 0, -sWidthHeight*sWH,sWidthHeight*sWH, -1,1, 3, 5);
-//            }else{
-//                Matrix.orthoM(mProjectMatrix, 0, -sWidthHeight/sWH,sWidthHeight/sWH, -1,1, 3, 5);
-//            }
-//        }else{
-//            if(sWH>sWidthHeight){
-//                Matrix.orthoM(mProjectMatrix, 0, -1, 1, -1/sWidthHeight*sWH, 1/sWidthHeight*sWH,3, 5);
-//            }else{
-//                Matrix.orthoM(mProjectMatrix, 0, -1, 1, -sWH/sWidthHeight, sWH/sWidthHeight,3, 5);
-//            }
-//        }
 
         // 1. 矩阵数组
         // 2. 结果矩阵起始的偏移量
@@ -122,12 +116,13 @@ public class Lesson5Render implements GLSurfaceView.Renderer {
         // 6. top：y的最大值
         // 7. near：z的最小值
         // 8. far：z的最大值
-//        Matrix.orthoM(mProjectMatrix, 0, -1, 1, -1, 1, -1, 1);
 
         Matrix.orthoM(mProjectMatrix, 0, 0, width, 0, height, -1, 1);
 
         posX = mWidth / 2f;
         posY = mHeight / 2f;
+        scale = 2.0f;
+        angle = 0;
     }
 
     @Override
@@ -139,11 +134,8 @@ public class Lesson5Render implements GLSurfaceView.Renderer {
 
         float newWidth = mBitmapWidth / 2f;
         float newHeight = mBitmapHeight / 2f;
-        float angle = 20;
-        Matrix.setIdentityM(mViewMatrix, 0);
-        Matrix.translateM(mViewMatrix, 0, posX, posY, 1.0f);
-        Matrix.rotateM(mViewMatrix, 0, angle % 360, 0.0f, 0.0f, 1.0f);
-        Matrix.scaleM(mViewMatrix, 0, newWidth * 1.4f, newHeight * 1.4f, 0f);
+
+        setMatrixData(angle, posX, posY, newWidth * scale, newHeight * scale);
         //计算变换矩阵
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0);
         textureProgram.useProgram();
@@ -151,13 +143,9 @@ public class Lesson5Render implements GLSurfaceView.Renderer {
         image.bindData(textureProgram);
         image.draw();
 
-
-        offsetWidth = newWidth * 1.6f;
-        offsetHeight = newHeight * 1.6f;
-        Matrix.setIdentityM(mViewMatrix, 0);
-        Matrix.translateM(mViewMatrix, 0, posX, posY, 1.0f);
-        Matrix.rotateM(mViewMatrix, 0, angle % 360, 0.0f, 0.0f, 1.0f);
-        Matrix.scaleM(mViewMatrix, 0, offsetWidth, offsetHeight, 0f);
+        offsetWidth = newWidth * (scale + 0.2f);
+        offsetHeight = newHeight * (scale + 0.2f);
+        setMatrixData(angle, posX, posY, offsetWidth, offsetHeight);
         Matrix.multiplyMM(mRctMVPMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0);
         colorProgram.useProgram();
         colorProgram.setUniforms(mRctMVPMatrix);
@@ -165,10 +153,13 @@ public class Lesson5Render implements GLSurfaceView.Renderer {
         rct.draw();
 
 
-        Matrix.setIdentityM(mViewMatrix, 0);
-        Matrix.translateM(mViewMatrix, 0, posX - offsetWidth, posY + offsetHeight, 1.0f);
-        Matrix.rotateM(mViewMatrix, 0, angle % 360, 0.0f, 0.0f, 1.0f);
-        Matrix.scaleM(mViewMatrix, 0, newWidth * 0.5f, newHeight * 0.5f, 0f);
+        float sinA = (float) Math.sin(Math.toRadians(angle));
+        float cosA = (float) Math.cos(Math.toRadians(angle));
+
+        newDelX = (-offsetWidth) * cosA - (offsetHeight) * sinA + posX;
+        newDelY = (-offsetWidth) * sinA + (offsetHeight) * cosA + posY;
+
+        setMatrixData(angle, newDelX, newDelY, newWidth * 0.5f, newHeight * 0.5f);
         Matrix.multiplyMM(mDelMVPMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0);
         textureProgram.useProgram();
         textureProgram.setUniforms(mDelMVPMatrix, delTexture);
@@ -176,10 +167,10 @@ public class Lesson5Render implements GLSurfaceView.Renderer {
         deleteButton.draw();
 
 
-        Matrix.setIdentityM(mViewMatrix, 0);
-        Matrix.translateM(mViewMatrix, 0, posX + offsetWidth, posY - offsetHeight, 1.0f);
-        Matrix.rotateM(mViewMatrix, 0, angle % 360, 0.0f, 0.0f, 1.0f);
-        Matrix.scaleM(mViewMatrix, 0, newWidth * 0.5f, newHeight * 0.5f, 0f);
+        newScaX = (offsetWidth) * cosA - (-offsetHeight) * sinA + posX;
+        newScaY = (offsetWidth) * sinA + (-offsetHeight) * cosA + posY;
+
+        setMatrixData(angle, newScaX, newScaY, newWidth * 0.5f, newHeight * 0.5f);
         Matrix.multiplyMM(mScaMVPMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0);
         textureProgram.useProgram();
         textureProgram.setUniforms(mScaMVPMatrix, scaleTexture);
@@ -187,32 +178,125 @@ public class Lesson5Render implements GLSurfaceView.Renderer {
         scaleButton.draw();
     }
 
+    private void setMatrixData(float angle, float posX, float posY, float scaleX, float scaleY) {
+        Matrix.setIdentityM(mViewMatrix, 0);
+        Matrix.translateM(mViewMatrix, 0, posX, posY, 1.0f);
+        Matrix.rotateM(mViewMatrix, 0, angle % 360, 0.0f, 0.0f, 1.0f);
+        Matrix.scaleM(mViewMatrix, 0, scaleX, scaleY, 0f);
+    }
+
+
+    private int mSelectStatus; // 当前状态
+    private final static int STATUS_IDLE = 100;
+    private final static int STATUS_DELETE = STATUS_IDLE + 1; // 删除
+    private final static int STATUS_MOVE = STATUS_DELETE + 1; // 移动
+    private final static int STATUS_ROTATE = STATUS_MOVE + 1; // 旋转
+    private final static int STATUS_CLICK = STATUS_ROTATE + 1; // 点击
+
+    private float oldx, oldy;
+
+
+    public void onTouchEvent(MotionEvent event) {
+        if (event != null) {
+
+            int action = event.getAction();
+            final float x = event.getX();
+            final float y = event.getY();
+
+            switch (action & MotionEvent.ACTION_MASK) {
+                case MotionEvent.ACTION_DOWN:
+                    handleTouchPress(x, y);
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    handleTouchDrag(x, y);
+                    break;
+            }
+        }
+
+    }
+
     /**
      * 按下
      *
-     * @param normalizedX
-     * @param normalizedY
+     * @param x
+     * @param y
      */
-    public void handleTouchPress(float normalizedX, float normalizedY) {
-
+    public void handleTouchPress(float x, float y) {
+        mSelectStatus = STATUS_IDLE;
+        oldx = x;
+        oldy = y;
+        if (isInScale(x, y)) {
+            Log.e("mby", ">>>isInScale<<<");
+            mSelectStatus = STATUS_ROTATE;
+        } else if (isInTools(x, y)) {
+            Log.e("mby", ">>>isInTools<<<");
+            mSelectStatus = STATUS_MOVE;
+        }
     }
 
     /**
      * 移动
      *
-     * @param normalizedX
-     * @param normalizedY
+     * @param x
+     * @param y
      */
-    public void handleTouchDrag(float normalizedX, float normalizedY) {
-        if (isInTools(normalizedX, normalizedY)) {
-            posX = normalizedX;
-            posY = mHeight - normalizedY;
+    public void handleTouchDrag(float x, float y) {
+        if (STATUS_ROTATE == mSelectStatus) {
+            Log.e("mby", ">>>isInRotate move<<<");
+            updateRotateAndScale(x, y);
+        } else if (STATUS_MOVE == mSelectStatus) {
+            Log.e("mby", ">>>isInScale move<<<");
+            float dx = x - oldx;
+            float dy = y - oldy;
+            posX = posX + dx;
+            posY = posY - dy;
         }
+        oldx = x;
+        oldy = y;
+    }
+
+    private void updateRotateAndScale(float dx, float dy) {
+
+        float x = dx - oldx;
+        float y = dy - oldy;
+
+        float n_x = newScaX + x;
+        float n_y = mHeight - newScaY + y;
+
+        float xa = newScaX - posX;
+        float ya = mHeight - newScaY - posY;
+
+        float xb = n_x - posX;
+        float yb = n_y - posY;
+
+        float srcLen = (float) Math.sqrt(xa * xa + ya * ya);
+        float curLen = (float) Math.sqrt(xb * xb + yb * yb);
+
+
+        float scaleFactor = curLen / srcLen;// 计算缩放比
+
+        Log.e("mby", "srcLen--->" + srcLen + "   curLen---->" +
+                curLen);
+
+        scale *= scaleFactor;
+
+        double cos = (xa * xb + ya * yb) / (srcLen * curLen);
+        if (cos > 1 || cos < -1)
+            return;
+        float angle1 = (float) Math.toDegrees(Math.acos(cos));
+
+        // 定理
+        float calMatrix = xa * yb - xb * ya;// 行列式计算 确定转动方向
+
+        int flag = calMatrix > 0 ? -1 : 1;
+        float angle2 = flag * angle1;
+        angle += angle2;
     }
 
     public boolean isInTools(float x, float y) {
-        RectF rectF = new RectF(posX - mBitmapWidth / 2, mHeight - posY - mBitmapHeight / 2, posX - mBitmapWidth / 2 + mBitmapWidth, mHeight - posY - mBitmapHeight / 2 + mBitmapHeight);
+        RectF rectF = new RectF(posX - offsetWidth, mHeight - posY, posX + offsetWidth, mHeight - posY + offsetHeight * 2);
         android.graphics.Matrix matrix = new android.graphics.Matrix();
+        matrix.preRotate(angle, posX, mHeight - posY);
         matrix.mapRect(rectF);
         if (rectF.contains(x, y)) {
             return true;
@@ -222,7 +306,7 @@ public class Lesson5Render implements GLSurfaceView.Renderer {
     }
 
     public boolean isInScale(float x, float y) {
-        RectF rectF = new RectF(posX - mBitmapWidth / 2, mHeight - posY - mBitmapHeight / 2, posX - mBitmapWidth / 2 + mBitmapWidth, mHeight - posY - mBitmapHeight / 2 + mBitmapHeight);
+        RectF rectF = new RectF(newScaX - toolWidth / 4, mHeight - newScaY + 200, newScaX + toolWidth / 4, mHeight - newScaY + toolHeight / 2 + 200);
         android.graphics.Matrix matrix = new android.graphics.Matrix();
         matrix.mapRect(rectF);
         if (rectF.contains(x, y)) {

@@ -24,28 +24,18 @@ public class TouchSurfaceView extends GLSurfaceView {
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
+    public boolean onTouchEvent(final MotionEvent event) {
         if (event != null) {
 //            final float normalizedX = (event.getX() / (float) getWidth()) * 2 - 1;
 //            final float normalizedY = -((event.getY() / (float) getHeight()) * 2 - 1);
             final float x = event.getX();
             final float y = event.getY();
-
-            if (event.getAction() == MotionEvent.ACTION_DOWN) {
-//                queueEvent(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        mRenderer.handleTouchPress(normalizedX, normalizedY);
-//                    }
-//                });
-            } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-                queueEvent(new Runnable() {
-                    @Override
-                    public void run() {
-                        mRenderer.handleTouchDrag(x, y);
-                    }
-                });
-            }
+            queueEvent(new Runnable() {
+                @Override
+                public void run() {
+                    mRenderer.onTouchEvent(event);
+                }
+            });
             return true;
         }
         return super.onTouchEvent(event);

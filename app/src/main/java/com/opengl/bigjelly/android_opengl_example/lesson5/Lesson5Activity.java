@@ -36,9 +36,11 @@ public class Lesson5Activity extends AppCompatActivity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         glSurfaceView = new TouchSurfaceView(this);
 //        glSurfaceView = new GLSurfaceView(this);
+//        glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
         glSurfaceView.setEGLContextClientVersion(3); // Pick an OpenGL ES 2.0 context.
         glSurfaceView.setRenderer(new Lesson5Render(this));
         setContentView(glSurfaceView);
+//        glSurfaceView.requestRender();
     }
 
     @Override
