@@ -261,10 +261,10 @@ public class Lesson5Render implements GLSurfaceView.Renderer {
         float y = dy - oldy;
 
         float n_x = newScaX + x;
-        float n_y = mHeight - newScaY + y;
+        float n_y = newScaY - y;
 
         float xa = newScaX - posX;
-        float ya = mHeight - newScaY - posY;
+        float ya = newScaY - posY;
 
         float xb = n_x - posX;
         float yb = n_y - posY;
@@ -288,9 +288,10 @@ public class Lesson5Render implements GLSurfaceView.Renderer {
         // 定理
         float calMatrix = xa * yb - xb * ya;// 行列式计算 确定转动方向
 
-        int flag = calMatrix > 0 ? -1 : 1;
+        int flag = calMatrix > 0 ? 1 : -1;
         float angle2 = flag * angle1;
         angle += angle2;
+        
     }
 
     public boolean isInTools(float x, float y) {
