@@ -2,6 +2,7 @@ package com.opengl.bigjelly.android_opengl_example.lesson5;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.PointF;
 import android.graphics.RectF;
 import android.opengl.GLES30;
 import android.opengl.GLSurfaceView;
@@ -15,6 +16,9 @@ import com.opengl.bigjelly.android_opengl_example.program.TextureShaderProgram;
 import com.opengl.bigjelly.android_opengl_example.utils.BitmapHelper;
 import com.opengl.bigjelly.android_opengl_example.utils.TextureHelper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
@@ -24,6 +28,10 @@ import javax.microedition.khronos.opengles.GL10;
  * @since 2019/03/08
  */
 public class Lesson5Render implements GLSurfaceView.Renderer {
+
+    private static final float MIN_SCALE = 0.15f; // 最小缩放比例
+    private static final float ZOOM_SCROLL_ACCURACY = 10f;
+
     private Context context;
 
     private float[] mViewMatrix = new float[16];
@@ -35,6 +43,8 @@ public class Lesson5Render implements GLSurfaceView.Renderer {
     private final float[] mDelMVPMatrix = new float[16];
 
     private final float[] mScaMVPMatrix = new float[16];
+
+    private float mDistance;
 
     //定义三角形对象
     Rct rct;
@@ -71,7 +81,6 @@ public class Lesson5Render implements GLSurfaceView.Renderer {
 
     public Lesson5Render(Context context) {
         this.context = context;
-
         rct = new Rct();
         image = new Image();
         deleteButton = new DeleteButton();
@@ -192,27 +201,71 @@ public class Lesson5Render implements GLSurfaceView.Renderer {
     private final static int STATUS_MOVE = STATUS_DELETE + 1; // 移动
     private final static int STATUS_ROTATE = STATUS_MOVE + 1; // 旋转
     private final static int STATUS_CLICK = STATUS_ROTATE + 1; // 点击
+    private final static int STATUS_POINTER_ROTATE = STATUS_CLICK + 1; // 双指操作
 
-    private float oldx, oldy;
+    private float oldx, oldy, oldx1, oldy1;
 
 
     public void onTouchEvent(MotionEvent event) {
         if (event != null) {
 
             int action = event.getAction();
-            final float x = event.getX();
-            final float y = event.getY();
+            final float x = event.getX(0);
+            final float y = event.getY(0);
 
             switch (action & MotionEvent.ACTION_MASK) {
                 case MotionEvent.ACTION_DOWN:
                     handleTouchPress(x, y);
                     break;
-                case MotionEvent.ACTION_MOVE:
-                    handleTouchDrag(x, y);
+                case MotionEvent.ACTION_POINTER_DOWN:
+                    Log.e("mby", ">>>two pointer touch<<<");
+                    handleMoreTouchPress(event, x, y);
                     break;
+                case MotionEvent.ACTION_MOVE:
+                    if (event.getPointerCount() == 2) {
+                        handleMoreTouchDrag(event, x, y);
+                    } else {
+                        handleTouchDrag(x, y);
+                    }
+                    break;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_POINTER_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    mSelectStatus = STATUS_IDLE;
+                    break;
+
             }
         }
 
+    }
+
+    private void handleMoreTouchPress(MotionEvent event, float x, float y) {
+        float x1 = event.getX(1);
+        float y1 = event.getY(1);
+
+        oldx = x;
+        oldy = y;
+
+        oldx1 = x1;
+        oldy1 = y1;
+        if (isInTools(x1, y1)) {
+            mSelectStatus = STATUS_POINTER_ROTATE;
+        }
+    }
+
+    private void handleMoreTouchDrag(MotionEvent event, float x, float y) {
+        if (STATUS_POINTER_ROTATE == mSelectStatus) {
+
+            Log.e("mby", ">>>two pointer touch drag<<<");
+            float x2 = event.getX(1);
+            float y2 = event.getY(1);
+            updateRotateAndScale(x, y, x2, y2);
+            oldx = x;
+            oldy = y;
+
+            oldx1 = x2;
+            oldy1 = y2;
+        }
     }
 
     /**
@@ -255,6 +308,75 @@ public class Lesson5Render implements GLSurfaceView.Renderer {
         oldy = y;
     }
 
+    /**
+     * 获取p1到p2的线段的长度
+     *
+     * @param p1
+     * @param p2
+     * @return
+     */
+    float getLineLength(PointF p1, PointF p2) {
+        return (float) Math.sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y));
+    }
+
+    /**
+     * 获取原点到p的线段的长度
+     *
+     * @param p
+     * @return
+     */
+    float getLineLength(PointF p) {
+        return (float) Math.sqrt(p.x * p.x + p.y * p.y);
+    }
+
+    public void updateRotateAndScale(float dx, float dy, float dx1, float dy1) {
+        PointF spt1 = new PointF(oldx, mHeight - oldy);
+        PointF ept1 = new PointF(oldx1, mHeight - oldy1);
+        PointF spt2 = new PointF(dx, mHeight - dy);
+        PointF ept2 = new PointF(dx1, mHeight - dy1);
+        Log.e("mby", "\n spt1-->" + spt1.toString() + ", ept1 -->" + ept1.toString()
+                + ", spt2 -->" + spt2.toString() + ", ept2 -->" + ept2.toString());
+        //两个线段之间的运动幅度过小，删除。
+        //此处要注意，为什么幅度过小要删除呢，因为在某些手机屏幕，在按压时灵敏度过高，
+        //或者硬件计算手指位置算法不够好，造成用户感觉手指没动而显示出来的坐标一直在抖动
+
+        if (getLineLength(spt1, spt2) + getLineLength(ept1, ept2) < 5) {
+            return;
+        }
+
+        //根据触点 构建两个向量，计算两个向量角度.
+        PointF v1 = new PointF(ept1.x - spt1.x, ept1.y - spt1.y);
+        PointF v2 = new PointF(ept2.x - spt2.x, ept2.y - spt2.y);
+
+        //计算两个向量的夹角.
+        float v1Len = getLineLength(v1);
+        float v2Len = getLineLength(v2);
+        float cosAlpha = (v1.x * v2.x + v1.y * v2.y) / (v1Len * v2Len);
+
+        if (cosAlpha > 1 || cosAlpha < -1) {
+            return;
+        }
+        float angle1 = (float) Math.toDegrees(Math.acos(cosAlpha));
+
+        // 定理
+        float calMatrix = v1.x * v2.y - v2.x * v1.y;// 行列式计算 确定转动方向
+
+        int flag = calMatrix > 0 ? 1 : -1;
+        float angle2 = flag * angle1;
+        angle += angle2;
+        Log.e("mby", "\n angle -->" + angle);
+        float scaleFactor = v2Len / v1Len;// 计算缩放比
+
+        float scale1 = scale;
+        scale1 *= scaleFactor;
+        if (scale1 < MIN_SCALE) {
+            return;
+        }
+
+        scale *= scaleFactor;
+        Log.e("mby", "\n scale -->" + scale);
+    }
+
     private void updateRotateAndScale(float dx, float dy) {
 
         float x = dx - oldx;
@@ -275,6 +397,12 @@ public class Lesson5Render implements GLSurfaceView.Renderer {
 
         float scaleFactor = curLen / srcLen;// 计算缩放比
 
+        float scale1 = scale;
+        scale1 *= scaleFactor;
+        if (scale1 < MIN_SCALE) {
+            return;
+        }
+
         Log.e("mby", "srcLen--->" + srcLen + "   curLen---->" +
                 curLen);
 
@@ -291,7 +419,17 @@ public class Lesson5Render implements GLSurfaceView.Renderer {
         int flag = calMatrix > 0 ? 1 : -1;
         float angle2 = flag * angle1;
         angle += angle2;
-        
+
+    }
+
+    // 两点的距离
+    private float spacingBetweenFingers(MotionEvent event) {
+        if (event == null) {
+            return 0f;
+        }
+        double x = event.getX(0) - event.getX(1);
+        double y = event.getY(0) - event.getY(1);
+        return (float) Math.sqrt(x * x + y * y);
     }
 
     public boolean isInTools(float x, float y) {
