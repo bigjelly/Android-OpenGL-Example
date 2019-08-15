@@ -349,8 +349,41 @@ public class Lesson5Render implements GLSurfaceView.Renderer {
         PointF v2 = new PointF(ept2.x - spt2.x, ept2.y - spt2.y);
 
         //计算两个向量的夹角.
+        changeAngleAndScale(v1, v2);
+    }
+
+    private void updateRotateAndScale(float dx, float dy) {
+
+        float x = dx - oldx;
+        float y = dy - oldy;
+
+        float n_x = newScaX + x;
+        float n_y = newScaY - y;
+
+        PointF spt1 = new PointF(newScaX, newScaY);
+        PointF ept1 = new PointF(posX, posY);
+        PointF spt2 = new PointF(n_x, n_y);
+        //两个线段之间的运动幅度过小，删除。
+        //此处要注意，为什么幅度过小要删除呢，因为在某些手机屏幕，在按压时灵敏度过高，
+        //或者硬件计算手指位置算法不够好，造成用户感觉手指没动而显示出来的坐标一直在抖动
+
+        if (getLineLength(spt1, ept1) + getLineLength(ept1, spt2) < 5) {
+            return;
+        }
+
+        //根据触点 构建两个向量，计算两个向量角度.
+        PointF v1 = new PointF(ept1.x - spt1.x, ept1.y - spt1.y);
+        PointF v2 = new PointF(ept1.x - spt2.x, ept1.y - spt2.y);
+        changeAngleAndScale(v1, v2);
+
+    }
+
+    private void changeAngleAndScale(PointF v1, PointF v2) {
+        //计算两个向量的夹角.
         float v1Len = getLineLength(v1);
         float v2Len = getLineLength(v2);
+
+
         float cosAlpha = (v1.x * v2.x + v1.y * v2.y) / (v1Len * v2Len);
 
         if (cosAlpha > 1 || cosAlpha < -1) {
@@ -375,51 +408,6 @@ public class Lesson5Render implements GLSurfaceView.Renderer {
 
         scale *= scaleFactor;
         Log.e("mby", "\n scale -->" + scale);
-    }
-
-    private void updateRotateAndScale(float dx, float dy) {
-
-        float x = dx - oldx;
-        float y = dy - oldy;
-
-        float n_x = newScaX + x;
-        float n_y = newScaY - y;
-
-        float xa = newScaX - posX;
-        float ya = newScaY - posY;
-
-        float xb = n_x - posX;
-        float yb = n_y - posY;
-
-        float srcLen = (float) Math.sqrt(xa * xa + ya * ya);
-        float curLen = (float) Math.sqrt(xb * xb + yb * yb);
-
-
-        float scaleFactor = curLen / srcLen;// 计算缩放比
-
-        float scale1 = scale;
-        scale1 *= scaleFactor;
-        if (scale1 < MIN_SCALE) {
-            return;
-        }
-
-        Log.e("mby", "srcLen--->" + srcLen + "   curLen---->" +
-                curLen);
-
-        scale *= scaleFactor;
-
-        double cos = (xa * xb + ya * yb) / (srcLen * curLen);
-        if (cos > 1 || cos < -1)
-            return;
-        float angle1 = (float) Math.toDegrees(Math.acos(cos));
-
-        // 定理
-        float calMatrix = xa * yb - xb * ya;// 行列式计算 确定转动方向
-
-        int flag = calMatrix > 0 ? 1 : -1;
-        float angle2 = flag * angle1;
-        angle += angle2;
-
     }
 
     // 两点的距离
